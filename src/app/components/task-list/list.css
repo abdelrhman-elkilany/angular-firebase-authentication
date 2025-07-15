@@ -1,0 +1,10 @@
+.task-card {
+    position: relative;
+    min-height: 70vh;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+#toDoGroup .task:last-child{
+    margin-bottom: 4rem;
+}
