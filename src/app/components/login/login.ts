@@ -1,19 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButton } from '@angular/material/button';
-import { MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
-import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
+import { AuthService } from '../../services/auth-service';
+import { Router } from '@angular/router';
+import { MaterialModuleModule } from '../../material-module/material-module-module';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, MatButton,ReactiveFormsModule, MatFormField, MatLabel, MatError, MatInput, MatCard, MatCardTitle,MatCardHeader,MatCardActions, MatCardContent],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModuleModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class Login {
 
+  authService = inject(AuthService);
+  router = inject(Router);
+  errorMessage? :string;
+  
   loginForm = new FormGroup({
     email: new FormControl('', [
       Validators.required,
@@ -27,11 +30,24 @@ export class Login {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      console.log('Form Submitted:', this.loginForm.value.email, this.loginForm.value.password);
+      const email = this.loginForm.value.email as string;
+      const password = this.loginForm.value.password as string;
+
+      this.authService.login(email, password).subscribe({
+        next: () => {
+          this.router.navigate(['/todo']);
+          this.loginForm.reset();
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.error?.message == 'INVALID_LOGIN_CREDENTIALS' ? 'Invalid email or password' : 'Login failed';
+          this.loginForm.reset();
+        }
+      });
     } else {
       console.log('Invalid Form');
       this.loginForm.markAllAsTouched();
     }
   }
+
 
 }
