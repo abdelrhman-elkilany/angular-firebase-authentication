@@ -4,13 +4,12 @@ export class User {
     public password: string,
     public localId: string,
     private idToken:string,
-    private expiresIn:string
+    private expiresIn:Date
   ) {}
 
 
     get getIdToken() {
-        const expireDate = new Date(new Date().getTime() + parseInt(this.expiresIn) * 1000);
-        if (expireDate <= new Date()) {
+        if (new Date(this.expiresIn) <= new Date()) {
             return null;
         }
         return this.idToken;

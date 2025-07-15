@@ -14,11 +14,10 @@ export class AuthGuard implements CanActivate {
     return this.authService.user.pipe(
       take(1),
       map((user) => {
-        console.log('AuthGuard user:', user);
         if (user?.getIdToken) {
           return true;
         } else {
-          this.router.navigate(['/']);
+          this.router.navigate(['/'], { queryParams: { message: 'login_required' } });
           return false;
         }
       })

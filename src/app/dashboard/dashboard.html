@@ -1,18 +1,25 @@
 @if(spinner()){
-    <app-spinner></app-spinner>
-    }
-    @if (errorMessage()){
-      <app-error-modal></app-error-modal>
-    }
-    <div class="container">
-      <div class="row d-flex justify-content-center mt-2">
-        <div class="col-md-4 m-2">
-          <app-list status="Pending"></app-list>
-        </div>
-    
-        <div class="col-md-4 m-2">
-          <app-list status="Done"></app-list>
-        </div>
-      </div>
+<app-spinner></app-spinner>
+} @if (errorMessage()){
+<app-error-modal></app-error-modal>
+}
+<mat-toolbar class="toolbar d-flex justify-content-between">
+  <span>My To Do</span>
+  <span> 
+    <button matFab (click)="logout()">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </span>
+</mat-toolbar>
+
+<div class="container">
+  <div class="row d-flex justify-content-center mt-2">
+    <div class="col-md-4 m-2">
+      <app-list status="Pending"></app-list>
     </div>
-    
+
+    <div class="col-md-4 m-2">
+      <app-list status="Done"></app-list>
+    </div>
+  </div>
+</div>

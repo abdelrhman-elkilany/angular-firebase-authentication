@@ -15,8 +15,5 @@ export class App {
   authService = inject(AuthService);
   ngAfterContentInit(): void {
     this.authService.refreshUser();
-    this.authService.user.subscribe((user) => {
-      console.log('User in App Component:', user);
-    });
   }
 }

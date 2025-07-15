@@ -1,32 +1,46 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MaterialModuleModule } from '../../material-module/material-module-module';
 
 @Component({
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, MaterialModuleModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class Login {
-
   authService = inject(AuthService);
   router = inject(Router);
-  errorMessage? :string;
-  
+  errorMessage?: string;
+  user: any;
+  activatedRoute = inject(ActivatedRoute);
+
   loginForm = new FormGroup({
-    email: new FormControl('', [
-      Validators.required,
-      Validators.email
-    ]),
-    password: new FormControl('', [
-      Validators.required
-    ])
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required]),
   });
 
+  ngOnInit(): void {
+    this.authService.user.subscribe((user) => {
+      if (user?.getIdToken) {
+        this.router.navigate(['/todo']);
+      }
+    });
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['message'] === 'login_required') {
+        this.errorMessage = 'You need to log in first to access to do.';
+      }
+    });
+  }
 
   onSubmit() {
     if (this.loginForm.valid) {
@@ -39,15 +53,16 @@ export class Login {
           this.loginForm.reset();
         },
         error: (error) => {
-          this.errorMessage = error.error?.error?.message == 'INVALID_LOGIN_CREDENTIALS' ? 'Invalid email or password' : 'Login failed';
+          this.errorMessage =
+            error.error?.error?.message == 'INVALID_LOGIN_CREDENTIALS'
+              ? 'Invalid email or password'
+              : 'Login failed';
           this.loginForm.reset();
-        }
+        },
       });
     } else {
       console.log('Invalid Form');
       this.loginForm.markAllAsTouched();
     }
   }
-
-
 }
