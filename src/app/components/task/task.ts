@@ -1,9 +1,10 @@
 import { Component, inject, Input } from '@angular/core';
 import { TasksService } from '../../services/tasks-service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-task',
-  imports: [],
+  imports: [MatIcon],
   templateUrl: './task.html',
   styleUrl: './task.css',
 })
@@ -17,8 +18,8 @@ export class Task {
   ngOnInit(): void {
     this.markIcon =
       this.status === 'Pending'
-        ? 'https://cdn-icons-png.flaticon.com/512/8832/8832108.png'
-        : 'https://cdn-icons-png.flaticon.com/512/10308/10308996.png';
+        ? 'check_box_outline'
+        : 'cancel';
   }
 
   markTask() {

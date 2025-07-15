@@ -1,10 +1,11 @@
 <div class="task">
-    {{data}}
-    
-    <img
-      class="action-icon"
-      [src] = "markIcon" 
-      (click)="markTask()"
-    />
-  </div>
-  
+  {{ data }}
+
+  <mat-icon
+    class="action-icon"
+    (click)="markTask()"
+    [style.color]="status === 'Pending' ? 'green' : 'red'"
+  >
+    {{ markIcon }}
+  </mat-icon>
+</div>

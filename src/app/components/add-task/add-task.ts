@@ -1,10 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TasksService } from '../../services/tasks-service';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-add-task',
-  imports: [FormsModule],
+  imports: [FormsModule, MatIcon],
   templateUrl: './add-task.html',
   styleUrl: './add-task.css'
 })
