@@ -3,14 +3,14 @@ import {
   ElementRef,
   inject,
 } from '@angular/core';
-import { List } from '../components/task-list/list';
-import { Spinner } from '../components/spinner/spinner';
-import { ErrorModal } from '../components/error-modal/error-modal';
-import { TasksService } from '../services/tasks-service';
+import { List } from '../task-list/list';
+import { Spinner } from '../spinner/spinner';
+import { ErrorModal } from '../error-modal/error-modal';
+import { TasksService } from '../../services/tasks-service';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIcon } from '@angular/material/icon';
 import { MatFabButton } from '@angular/material/button';
-import { AuthService } from '../services/auth-service';
+import { AuthService } from '../../services/auth-service';
 
 
 @Component({

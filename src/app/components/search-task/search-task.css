@@ -6,8 +6,13 @@
 }
 
 .search-icon {
+    width: auto;
     max-width: 50px;
     position: absolute;
-    right: 1rem;
+    right: .2rem;
     cursor: pointer;
+}
+
+.backspace-icon {
+    right: 2rem;
 }

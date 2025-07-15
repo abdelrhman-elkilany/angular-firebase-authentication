@@ -10,7 +10,7 @@ export const routes: Routes = [
     {
         path:"todo",
         //component: Dashboard
-        loadComponent: () => import('./dashboard/dashboard').then(m => m.Dashboard),
+        loadComponent: () => import('./components/dashboard/dashboard').then(m => m.Dashboard),
         canActivate: [AuthGuard]
     },
     {
