@@ -1,6 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal, type Signal } from '@angular/core';
-import { catchError, filter, map, pipe, tap } from 'rxjs';
+import {
+  catchError,
+  map,
+  of,
+  pipe,
+  switchMap,
+  take,
+  tap,
+  throwError,
+} from 'rxjs';
+import { AuthService } from './auth-service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,47 +21,75 @@ export class TasksService {
   doneTasks = signal<string[]>([]);
   spinner = signal(false);
   errorMessage = signal<string | null>(null);
+  authService = inject(AuthService);
 
   getTasks(status: 'Pending' | 'Done') {
-    return this.httpClient
-      .post(
-        'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents:runQuery',
-        {
-          structuredQuery: {
-            from: [{ collectionId: 'toDo' }],
-            where: {
-              fieldFilter: {
-                field: { fieldPath: 'status' },
-                op: 'EQUAL',
-                value: { stringValue: status.toLowerCase() },
-              },
-            },
-          },
+    return this.authService.user.pipe(
+      take(1),
+      switchMap((user) => {
+        const localId = user?.getLocalId;
+        if (!localId) {
+          this.errorMessage.set('User is not authenticated or token expired');
+          return throwError(
+            () => new Error('User is not authenticated or token expired')
+          );
         }
-      )
-      .pipe(
-        map((entries) => {
-          return entries as any[];
-        }),
-        map((entries: any[]) =>
-          entries
-            .filter((entry) => !!entry.document?.fields?.name?.stringValue)
-            .map((entry) => entry.document.fields.name.stringValue)
-        ),
-        tap((tasks: string[]) => {
-          if (status === 'Pending') {
-            this.pendingTasks.set(tasks);
-          }
-          if (status === 'Done') {
-            this.doneTasks.set(tasks);
-          }
-        }),
-        catchError((error) => {
-          console.error('Error fetching tasks:', error);
-          this.errorMessage.set('Failed to load tasks');
-          return [];
-        })
-      );
+        return of(localId);
+      }),
+      switchMap((localId) => {
+        return this.httpClient
+          .post(
+            'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents:runQuery',
+            {
+              structuredQuery: {
+                from: [{ collectionId: 'toDo' }],
+                where: {
+                  compositeFilter: {
+                    op: 'AND',
+                    filters: [
+                      {
+                        fieldFilter: {
+                          field: { fieldPath: 'status' },
+                          op: 'EQUAL',
+                          value: { stringValue: status.toLowerCase() },
+                        },
+                      },
+                      {
+                        fieldFilter: {
+                          field: { fieldPath: 'localId' },
+                          op: 'EQUAL',
+                          value: { stringValue: localId },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            }
+          )
+          .pipe(
+            map((entries) => entries as any[]),
+            map((entries: any[]) =>
+              entries
+                .filter((entry) => !!entry.document?.fields?.name?.stringValue)
+                .map((entry) => entry.document.fields.name.stringValue)
+            ),
+            tap((tasks: string[]) => {
+              if (status === 'Pending') {
+                this.pendingTasks.set(tasks);
+              }
+              if (status === 'Done') {
+                this.doneTasks.set(tasks);
+              }
+            }),
+            catchError((error) => {
+              console.error('Error fetching tasks:', error);
+              this.errorMessage.set('Failed to load tasks');
+              return [];
+            })
+          );
+      })
+    );
   }
 
   markAsCompleted(task: string) {
@@ -71,10 +109,10 @@ export class TasksService {
         });
         this.spinner.set(false);
       },
-      error: (error) => {      
-          console.error('Error marking task as complete:', error);
-          this.errorMessage.set('Failed to mark task as completed');
-          this.spinner.set(false);
+      error: (error) => {
+        console.error('Error marking task as complete:', error);
+        this.errorMessage.set('Failed to mark task as completed');
+        this.spinner.set(false);
       },
     });
   }
@@ -100,38 +138,71 @@ export class TasksService {
         this.errorMessage.set('Failed to mark task as Pending');
         this.spinner.set(false);
         console.error(`Error marking task ${task} as Pending:`, error);
-
       },
     });
   }
 
   updateTaskStatus(task: string, status: 'Pending' | 'Done') {
-    return this.httpClient.patch(
-      'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
-        task +
-        '?updateMask.fieldPaths=name&updateMask.fieldPaths=status',
-      {
-        fields: {
-          name: { stringValue: task },
-          status: { stringValue: status.toLowerCase() },
-        },
-      }
+    return this.authService.user.pipe(
+      take(1),
+      switchMap((user) => {
+        const localId = user?.getLocalId;
+        if (!localId) {
+          this.errorMessage.set('User is not authenticated or token expired');
+          return throwError(
+            () => new Error('User is not authenticated or token expired')
+          );
+        }
+        return of(localId);
+      }),
+      switchMap((localId) => {
+        return this.httpClient.patch(
+          'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
+            task +
+            '?updateMask.fieldPaths=name&updateMask.fieldPaths=status',
+          {
+            fields: {
+              name: { stringValue: task },
+              status: { stringValue: status.toLowerCase() },
+              localId: { stringValue: localId },
+            },
+          }
+        );
+      })
     );
   }
 
   addTask(task: string) {
-    return this.httpClient.patch(
-      'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
-        task,
-      {
-        fields: {
-          name: { stringValue: task },
-          status: { stringValue: 'pending' },
-        },
-      }
-    ).pipe(
-      tap( () =>{
-        this.pendingTasks.update((tasks) => [...tasks, task]);
+    return this.authService.user.pipe(
+      take(1),
+      switchMap((user) => {
+        const localId = user?.getLocalId;
+        if (!localId) {
+          this.errorMessage.set('User is not authenticated or token expired');
+          return throwError(
+            () => new Error('User is not authenticated or token expired')
+          );
+        }
+        return of(localId);
+      }),
+      switchMap((localId) => {
+        return this.httpClient
+          .patch(
+            'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
+              task,
+            {
+              fields: {
+                name: { stringValue: task },
+                status: { stringValue: 'pending' },
+                localId: { stringValue: localId },
+              },
+            }
+          )
+          .pipe(
+            tap(() => {
+              this.pendingTasks.update((tasks) => [...tasks, task]);
+            })
+          );
       })
     );
   }

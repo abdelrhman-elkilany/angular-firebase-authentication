@@ -9,6 +9,7 @@ import {
 import { AuthService } from '../../services/auth-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MaterialModuleModule } from '../../material-module/material-module-module';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -29,7 +30,7 @@ export class Login {
   });
 
   ngOnInit(): void {
-    this.authService.user.subscribe((user) => {
+    this.authService.user.pipe(take(1)).subscribe((user) => {
       if (user?.getIdToken) {
         this.router.navigate(['/todo']);
       }

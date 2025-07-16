@@ -28,6 +28,7 @@ export class AddTask {
           this.isLoading = false;
         }
       });
+      this.task = '';
     }
 
   }

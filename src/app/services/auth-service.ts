@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, take, tap } from 'rxjs';
-import { User } from '../components/login/user.model';
+import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 
 @Injectable({
