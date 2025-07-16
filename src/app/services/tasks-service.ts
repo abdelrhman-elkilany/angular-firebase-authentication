@@ -11,6 +11,7 @@ import {
   throwError,
 } from 'rxjs';
 import { AuthService } from './auth-service';
+import type { FirestoreEntry } from '../interfaces/FirestoreEntryInterface';
 
 @Injectable({
   providedIn: 'root',
@@ -68,8 +69,8 @@ export class TasksService {
             }
           )
           .pipe(
-            map((entries) => entries as any[]),
-            map((entries: any[]) =>
+            map((entries) => entries as FirestoreEntry[]),
+            map((entries: FirestoreEntry[]) =>
               entries
                 .filter((entry) => !!entry.document?.fields?.name?.stringValue)
                 .map((entry) => entry.document.fields.name.stringValue)

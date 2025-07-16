@@ -1,8 +1,8 @@
 .task {
     border: 1px solid black;
     border-radius: 15px;
-    margin: 5px;
-    padding: 5px;
+    margin: 0.3rem;
+    padding: 0.3rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
     position: relative;
 }
