@@ -23,7 +23,6 @@ export class AuthService {
       this.user.next(
         new User(
           user.email,
-          user.password,
           user.localId,
           user.idToken,
           user.expiresIn
@@ -51,7 +50,6 @@ export class AuthService {
         tap((response: any) => {
           const user = new User(
             response.email,
-            response.password,
             response.localId,
             response.idToken,
             new Date(new Date().getTime() + parseInt(response.expiresIn) * 1000)
