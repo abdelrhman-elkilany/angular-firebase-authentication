@@ -3,12 +3,12 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, take, tap } from 'rxjs';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiToken: string = 'AIzaSyCgsiadYjM6yPFkD_qYxOc6jh35_VbafoI';
 
   user = new BehaviorSubject<User | null>(null);
 
@@ -38,8 +38,8 @@ export class AuthService {
   login(email: string, password: string) {
     return this.httpClient
       .post(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' +
-          this.apiToken,
+          environment.firebase_auth_url +
+          environment.apiToken,
         {
           email: email,
           password: password,

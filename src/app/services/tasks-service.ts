@@ -12,6 +12,7 @@ import {
 } from 'rxjs';
 import { AuthService } from './auth-service';
 import type { FirestoreEntry } from '../interfaces/FirestoreEntryInterface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -25,22 +26,11 @@ export class TasksService {
   authService = inject(AuthService);
 
   getTasks(status: 'Pending' | 'Done') {
-    return this.authService.user.pipe(
-      take(1),
-      switchMap((user) => {
-        const localId = user?.getLocalId;
-        if (!localId) {
-          this.errorMessage.set('User is not authenticated or token expired');
-          return throwError(
-            () => new Error('User is not authenticated or token expired')
-          );
-        }
-        return of(localId);
-      }),
+    return  this.getLocalId().pipe(
       switchMap((localId) => {
         return this.httpClient
           .post(
-            'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents:runQuery',
+            environment.firestore_base_url+':runQuery',
             {
               structuredQuery: {
                 from: [{ collectionId: 'toDo' }],
@@ -144,21 +134,10 @@ export class TasksService {
   }
 
   updateTaskStatus(task: string, status: 'Pending' | 'Done') {
-    return this.authService.user.pipe(
-      take(1),
-      switchMap((user) => {
-        const localId = user?.getLocalId;
-        if (!localId) {
-          this.errorMessage.set('User is not authenticated or token expired');
-          return throwError(
-            () => new Error('User is not authenticated or token expired')
-          );
-        }
-        return of(localId);
-      }),
+    return  this.getLocalId().pipe(
       switchMap((localId) => {
         return this.httpClient.patch(
-          'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
+            environment.firestore_base_url + '/toDo/' +
             task +
             '?updateMask.fieldPaths=name&updateMask.fieldPaths=status',
           {
@@ -174,22 +153,11 @@ export class TasksService {
   }
 
   addTask(task: string) {
-    return this.authService.user.pipe(
-      take(1),
-      switchMap((user) => {
-        const localId = user?.getLocalId;
-        if (!localId) {
-          this.errorMessage.set('User is not authenticated or token expired');
-          return throwError(
-            () => new Error('User is not authenticated or token expired')
-          );
-        }
-        return of(localId);
-      }),
+    return this.getLocalId().pipe(
       switchMap((localId) => {
         return this.httpClient
           .patch(
-            'https://firestore.googleapis.com/v1/projects/to-do-bda69/databases/(default)/documents/toDo/' +
+         environment.firestore_base_url + '/toDo/' +
               task,
             {
               fields: {
@@ -207,4 +175,22 @@ export class TasksService {
       })
     );
   }
+
+
+  private getLocalId() {
+    return this.authService.user.pipe(
+      take(1),
+      switchMap((user) => {
+        const localId = user?.getLocalId;
+        if (!localId) {
+          this.errorMessage.set('User is not authenticated or token expired');
+          return throwError(
+            () => new Error('User is not authenticated or token expired')
+          );
+        }
+        return of(localId);
+      })
+    );
+  }
+
 }
