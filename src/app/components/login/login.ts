@@ -45,25 +45,37 @@ export class Login {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const email = this.loginForm.value.email as string;
-      const password = this.loginForm.value.password as string;
-
-      this.authService.login(email, password).subscribe({
-        next: () => {
-          this.router.navigate(['/todo']);
-          this.loginForm.reset();
-        },
-        error: (error) => {
-          this.errorMessage =
-            error.error?.error?.message == 'INVALID_LOGIN_CREDENTIALS'
-              ? 'Invalid email or password'
-              : 'Login failed';
-          this.loginForm.reset();
-        },
-      });
+      this.performLogin();
     } else {
-      console.log('Invalid Form');
-      this.loginForm.markAllAsTouched();
+      this.handleInvalidForm();
     }
+  }
+  
+  private performLogin(): void {
+    const email = this.loginForm.value.email as string;
+    const password = this.loginForm.value.password as string;
+  
+    this.authService.login(email, password).subscribe({
+      next: () => this.handleSuccessfulLogin(),
+      error: (error) => this.handleLoginError(error),
+    });
+  }
+  
+  private handleSuccessfulLogin(): void {
+    this.router.navigate(['/todo']);
+    this.loginForm.reset();
+  }
+  
+  private handleLoginError(error: any): void {
+    this.errorMessage =
+      error.error?.error?.message === 'INVALID_LOGIN_CREDENTIALS'
+        ? 'Invalid email or password'
+        : 'Login failed';
+    this.loginForm.reset();
+  }
+  
+  private handleInvalidForm(): void {
+    console.log('Invalid Form');
+    this.loginForm.markAllAsTouched();
   }
 }

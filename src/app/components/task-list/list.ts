@@ -37,24 +37,39 @@ export class List implements OnInit {
     this.taskService.getTasks(this.status).subscribe({
       next: () => {
         this.taskService.spinner.set(false);
-      }
+      },
     });
   }
 
-  search(data: { searchInput: string; target: string }) {
-    if (data.target == this.status) {
-      if (!data.searchInput) {
-        this.filteredTasks.set(
-          this.status === 'Pending'
-            ? this.taskService.pendingTasks()
-            : this.taskService.doneTasks()
-        );
+  search(data: { searchInput: string; target: string }): void {
+    if (this.isTargetMatchingStatus(data.target)) {
+      if (this.isSearchInputEmpty(data.searchInput)) {
+        this.resetFilteredTasks();
+      } else {
+        this.filterTasks(data.searchInput);
       }
-      this.filteredTasks.update((fullTasks: string[]) => {
-        return fullTasks.filter((f: string) =>
-          f.toLowerCase().includes(data.searchInput)
-        );
-      });
     }
+  }
+
+  private isTargetMatchingStatus(target: string): boolean {
+    return target === this.status;
+  }
+
+  private isSearchInputEmpty(searchInput: string): boolean {
+    return !searchInput;
+  }
+
+  private resetFilteredTasks(): void {
+    this.filteredTasks.set(
+      this.status === 'Pending'
+        ? this.taskService.pendingTasks()
+        : this.taskService.doneTasks()
+    );
+  }
+
+  private filterTasks(searchInput: string): void {
+    this.filteredTasks.update((fullTasks: string[]) =>
+      fullTasks.filter((task) => task.toLowerCase().includes(searchInput))
+    );
   }
 }
