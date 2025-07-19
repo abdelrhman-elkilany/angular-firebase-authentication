@@ -11,6 +11,7 @@ import { MatToolbar } from '@angular/material/toolbar';
 import { MatIcon } from '@angular/material/icon';
 import { MatFabButton } from '@angular/material/button';
 import { AuthService } from '../../auth/auth-service';
+import { TaskStatus } from '../../enums/taskStatusEnum';
 
 
 @Component({
@@ -20,6 +21,7 @@ import { AuthService } from '../../auth/auth-service';
   styleUrl: './dashboard.css'
 })
 export class Dashboard {
+  TaskStatus = TaskStatus
   taskService = inject(TasksService);
   spinner = this.taskService.spinner;
   errorMessage = this.taskService.errorMessage;

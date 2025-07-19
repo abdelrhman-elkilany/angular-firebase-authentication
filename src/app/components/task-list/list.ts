@@ -12,6 +12,7 @@ import { AddTask } from '../add-task/add-task';
 import { SearchTask } from '../search-task/search-task';
 import { Task } from '../task/task';
 import { TasksService } from '../../services/tasks-service';
+import { TaskStatus } from '../../enums/taskStatusEnum';
 
 @Component({
   selector: 'app-list',
@@ -20,13 +21,14 @@ import { TasksService } from '../../services/tasks-service';
   styleUrl: './list.css',
 })
 export class List implements OnInit {
-  @Input() status!: 'Pending' | 'Done';
+  TaskStatus = TaskStatus
+  @Input() status!: TaskStatus;
   taskService = inject(TasksService);
   filteredTasks = signal<string[]>([]);
 
   tasksEffect = effect(() => {
     this.filteredTasks.set(
-      this.status === 'Pending'
+      this.status === TaskStatus.Pending
         ? this.taskService.pendingTasks()
         : this.taskService.doneTasks()
     );
@@ -41,7 +43,7 @@ export class List implements OnInit {
     });
   }
 
-  search(data: { searchInput: string; target: string }): void {
+  search(data: { searchInput: string; target: TaskStatus }): void {
     if (this.isTargetMatchingStatus(data.target)) {
       if (this.isSearchInputEmpty(data.searchInput)) {
         this.resetFilteredTasks();
@@ -51,7 +53,7 @@ export class List implements OnInit {
     }
   }
 
-  private isTargetMatchingStatus(target: string): boolean {
+  private isTargetMatchingStatus(target: TaskStatus): boolean {
     return target === this.status;
   }
 
@@ -61,7 +63,7 @@ export class List implements OnInit {
 
   private resetFilteredTasks(): void {
     this.filteredTasks.set(
-      this.status === 'Pending'
+      this.status === TaskStatus.Pending
         ? this.taskService.pendingTasks()
         : this.taskService.doneTasks()
     );
