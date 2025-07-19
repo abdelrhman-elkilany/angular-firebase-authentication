@@ -10,7 +10,7 @@ import { TasksService } from '../../services/tasks-service';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIcon } from '@angular/material/icon';
 import { MatFabButton } from '@angular/material/button';
-import { AuthService } from '../../services/auth-service';
+import { AuthService } from '../../auth/auth-service';
 
 
 @Component({

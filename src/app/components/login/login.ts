@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthService } from '../../services/auth-service';
+import { AuthService } from '../../auth/auth-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs';
 import { MatButton, MatButtonModule } from '@angular/material/button';

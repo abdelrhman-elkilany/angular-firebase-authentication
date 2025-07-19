@@ -10,7 +10,7 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { AuthService } from './auth-service';
+import { AuthService } from '../auth/auth-service';
 import type { FirestoreEntry } from '../interfaces/FirestoreEntryInterface';
 import { environment } from '../../environments/environment';
 
